@@ -1,6 +1,6 @@
 def maze_builder_func(filename):
-    # MAZE BUILDER
-    maze_file = open(file=filename, mode="r")
+    # maze builder
+    maze_file = open(file=filename, mode="r")  # Open the maze file in read mode
     cont = maze_file.read()
     lines = cont.splitlines()
 
@@ -31,9 +31,10 @@ def maze_builder_func(filename):
 
 
 def expand_node(node,explorados):
-
+    # Expands the given node and returns a list of new nodes
     node_state = node.state
     new_nodes = []
+    # Generate new nodes based on possible actions of agent in current state (UP, DOWN, LEFT, RIGHT)
     for action in node.possible_actions:
         if action == "UP" :
             new_state = (node.state[0]-1,node.state[1])
@@ -61,12 +62,14 @@ def expand_node(node,explorados):
 
 
 class Maze:
+    # Initializes the Maze object with the provided file
     def __init__(self,file):
         self.solution = None
         self.mapped_maze,self.initial_coord,self.end_coord=maze_builder_func(file)
         self.dimensions=(len(self.mapped_maze), len(self.mapped_maze[0]))
 
     def bool_map(self):
+        # Converts the mapped maze to a boolean map
         map=[]
         for row in self.mapped_maze:
             map_r=[]
@@ -75,17 +78,21 @@ class Maze:
             map.append(map_r)
         return map
     def is_a_wall(self,coord_x,coord_y):
+        # Checks if a given coordinate represents a wall
         try:
             valor = not bool(self.bool_map()[coord_x][coord_y])
             return valor
         except IndexError:
             return True
+
     def is_solution(self,node):
+        # Checks if a given node is the solution
         if node.state == self.end_coord:
             return True
         else:
             return False
     def maze_solver(self,node):
+        # Solves the maze using the given starting node
         n_list = []
         n_list.append(node)
         frontier = Frontier()
@@ -116,7 +123,7 @@ class Maze:
             new_nodes= expand_node(new_node,explored)
             frontier.add_node(new_nodes)
 
-         # Check the value of x and act accordingly
+        # Check if a solution is found
         if self.solution is None:
             raise ValueError("No solution found.")
 
@@ -124,12 +131,13 @@ class Maze:
 
 
 class Node:
+    # Initializes a Node with the given state, parent node, and previous action
     def __init__(self,state,parent,prev_action):
         self.state = state
         self.parent = parent
         self.possible_actions = set()
         self.prev_action = prev_action
-
+        # Append possible agent actions based on the state and walls
         #Append "UP" action
         if not ((self.state[0]==0) or m.is_a_wall(self.state[0]-1,self.state[1]) ):
             self.possible_actions.add("UP")
@@ -146,17 +154,19 @@ class Node:
 
 class Frontier:
     def __init__(self):
+        # Initializes the Frontier object with an empty list
         self.frontier = []
 
     def is_empty(self):
+        # Checks if the frontier is empty
         return self.frontier == 0
     def add_node(self,nodes):
         self.frontier.extend(nodes)
 
     def pick_node(self):
-        # this is for dept-first search
+        # Picks a node from the frontier (depth-first search)
         try:
-            node= self.frontier.pop()
+            node= self.frontier.pop() # this is for dept-first search
             return node
         except IndexError:
             raise Exception("Frontier is empty. No more nodes to explore.")
@@ -164,12 +174,15 @@ class Frontier:
 
 class Explored_set:
     def __init__(self):
+        # Initializes the Explored_set object with an empty set
         self.explored = set()
 
     def add_to_explored(self,node):
+        # Adds a node's state to the explored set
         self.explored.add(node.state)
 
     def is_in_explored(self,node):
+        # Checks if a node's state is in the explored set
         return node.state in self.explored
 
 
@@ -187,7 +200,7 @@ m.maze_solver(n)
 sol_path =[m.initial_coord]+ m.solution[1]
 
 
-
+# Plotting the maze with the solution path
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
@@ -225,12 +238,10 @@ def plot_maze(maze, path,start,end):
              fontweight='bold')
     plt.text(end[1] ,  end[0]-0.2 , 'B', color='green', ha='center', va='center', fontsize=15,
              fontweight='bold')
-
     plt.show()
 
 
-
-
+# Plotting the maze with the solution path
 plot_maze(m.mapped_maze,sol_path,m.initial_coord,m.end_coord )
 
 
