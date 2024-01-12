@@ -108,13 +108,17 @@ class Maze:
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
-
+                print("The problem has a solution!")
                 return
 
             explored.add_to_explored(new_node)
 
             new_nodes= expand_node(new_node,explored)
             frontier.add_node(new_nodes)
+
+         # Check the value of x and act accordingly
+        if self.solution is None:
+            raise ValueError("No solution found.")
 
 
 
@@ -171,7 +175,7 @@ class Explored_set:
 
 
 # Main Program
-m=Maze("laberinto.txt")
+m=Maze("laberinto2.txt")
 initial_state = m.initial_coord
 
 #initial node
@@ -182,7 +186,6 @@ m.maze_solver(n)
 
 sol_path =[m.initial_coord]+ m.solution[1]
 
-print(m.mapped_maze[0][1][(0,1)])
 
 
 import matplotlib.pyplot as plt
@@ -215,7 +218,7 @@ def plot_maze(maze, path,start,end):
     plt.xticks(np.arange(len(maze[0]))-0.5, range(len(maze[0])))
     plt.yticks(np.arange(len(maze)-0.5), range(len(maze)))
     plt.grid(color='yellow', linestyle='--', linewidth=2)
-    #plt.axis('off')  # Turn off the axis
+    plt.axis('off')  # Turn off the axis
 
     # Add labels "A" and "B" at initial and end positions
     plt.text(start[1] ,  start[0]-0.2, 'A', color='green', ha='center', va='center', fontsize=15,
