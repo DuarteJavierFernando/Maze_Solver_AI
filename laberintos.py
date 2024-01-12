@@ -91,10 +91,7 @@ class Maze:
         frontier = Frontier()
         frontier.add_node(n_list)
         explored = Explored_set()
-        i=0
         while frontier.frontier:
-            i=i+1
-            print(i)
             if frontier.is_empty():
                 raise Exception("no solution")
 
@@ -102,6 +99,16 @@ class Maze:
 
             #check if node is solution
             if self.is_solution(new_node):
+                actions = []
+                cells = []
+                while new_node.parent is not None:
+                    actions.append(new_node.prev_action)
+                    cells.append(new_node.state)
+                    new_node = new_node.parent
+                actions.reverse()
+                cells.reverse()
+                self.solution = (actions, cells)
+
                 return
 
             explored.add_to_explored(new_node)
@@ -173,13 +180,56 @@ n= Node((initial_state[0],initial_state[1]),None,None)
 
 m.maze_solver(n)
 
-#print(m.solution)
+sol_path =[m.initial_coord]+ m.solution[1]
+
+print(m.mapped_maze[0][1][(0,1)])
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
+
+def plot_maze(maze, path,start,end):
+    # Create a 2D array to represent the maze
+    maze_array = np.zeros((len(maze), len(maze[0])))
+    cmap = LinearSegmentedColormap.from_list('custom_gray', ['#f0f0f0', '#404040'], N=256)
+
+    # Set values for walls, path, and empty cells
+    for i in range(len(maze)):
+        for j in range(len(maze[i])):
+            if not maze[i][j][(i,j)]:
+                maze_array[i, j] = 0.5  # Wall (gray)
+            else:
+                maze_array[i, j] = 0.2  # Empty cell (white)
+
+#    for i in range(len(maze)):
+#        for j in range(len(maze[i])):
+#            if (i, j) in path:
+#                maze_array[i, j] = 2  # Path (yellow)
+    # Plot the maze
+    plt.imshow(maze_array, cmap=cmap, interpolation='nearest')
+    path_x, path_y = zip(*path)
+    plt.plot(path_y, path_x, color='red', linewidth=2)
+
+    # Customize the plot
+    plt.xticks(np.arange(len(maze[0]))-0.5, range(len(maze[0])))
+    plt.yticks(np.arange(len(maze)-0.5), range(len(maze)))
+    plt.grid(color='yellow', linestyle='--', linewidth=2)
+    #plt.axis('off')  # Turn off the axis
+
+    # Add labels "A" and "B" at initial and end positions
+    plt.text(start[1] ,  start[0]-0.2, 'A', color='green', ha='center', va='center', fontsize=15,
+             fontweight='bold')
+    plt.text(end[1] ,  end[0]-0.2 , 'B', color='green', ha='center', va='center', fontsize=15,
+             fontweight='bold')
+
+    plt.show()
 
 
 
-#node_list= [n]
-#print(n.state)
-#print(n.possible_actions)
-#n_nodes = expand_node(n)
-#print(n_nodes[1].state)
-#node_list.extend(n_nodes)
+
+plot_maze(m.mapped_maze,sol_path,m.initial_coord,m.end_coord )
+
+
+
+
